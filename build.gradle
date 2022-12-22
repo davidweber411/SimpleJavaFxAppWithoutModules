@@ -1,0 +1,50 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.13'
+}
+
+group 'com.wedasoft'
+version '1.0.0'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+ext {
+    javaFxVersion = '17.0.2'
+    junitVersion = '5.8.2'
+    mainClassNameParam = 'com.wedasoft.simplejavafxappwithoutmodules.MainApplicationLauncher'
+}
+
+mainClassName = "${mainClassNameParam}"
+sourceCompatibility = '17'
+targetCompatibility = '17'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+javafx {
+    version = "${javaFxVersion}"
+    modules = ['javafx.controls', 'javafx.fxml']
+}
+
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task createCustomFatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': "${mainClassNameParam}"
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
